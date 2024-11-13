@@ -4,7 +4,9 @@
   "description": "Employee Tracker App",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
@@ -13,10 +15,12 @@
   "author": "Jzaroli",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "inquirer": "^12.0.1",
     "pg": "^8.13.1"
   },
   "devDependencies": {
+    "@types/dotenv": "^6.1.1",
     "@types/inquirer": "^9.0.7",
     "@types/pg": "^8.11.10",
     "typescript": "^5.6.3"
