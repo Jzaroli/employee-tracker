@@ -16,9 +16,29 @@ inquirer
       message: 'What information would you like to access?',
       choices: [
         {
+            name: 'View all Departments',
+            value: 'VIEW_DEPARTMENTS',
+        },
+        {
+            name: 'View all Roles',
+            value: 'VIEW_ROLES',
+        },
+        {
             name: 'View all Employess',
             value: 'VIEW_EMPLOYEES',
         },
+        {
+            name: 'Add a Department',
+            value: 'ADD_DEPARTMENT',
+        },
+        {
+            name: 'Add a Role',
+            value: 'ADD_ROLE',
+        },
+        {
+            name: 'Quit Application',
+            value: 'QUIT_APPLICATION',
+        }
       ]
     },
 ])
@@ -29,10 +49,34 @@ inquirer
         case 'VIEW_EMPLOYEES':
             findEmployees();
             break;
+        case 'VIEW_DEPARTMENTS':
+            findDepartments();
+            break;
+        case 'VIEW_ROLES':
+            findRoles();
+            break;
+        case 'ADD_DEPARTMENT':
+            addDepartment();
+            break;
+        case 'ADD_ROLE':
+            AddRole();
+            break;
+        case 'QUIT_APPLICATION':
+            quit();
+            break;
         default:
             console.log('Please make another selection');
     }
   });
+}
+
+function findDepartments() {
+    db.viewAllDepartments()
+    .then(({ rows }) => {
+        const departments = rows;
+        console.table(departments);
+    })
+    .then(() => script());
 }
 
 function findEmployees() {
@@ -42,4 +86,33 @@ function findEmployees() {
             console.table(employees);
         })
         .then(() => script());
+}
+
+function findRoles() {
+    db.viewAllRoles()
+        .then(({ rows }) => {
+            const roles = rows; 
+            console.table(roles);
+    })
+    .then(() => script());
+}
+
+function addDepartment(){
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "name",
+            message: "What is the department's name?",
+        }
+    ]).then((response) => {
+        db.addDept(response) })
+            .then( () => {
+                console.log('Your new department was added to the system record!');
+            })      
+    .then(() => script());
+}
+
+function quit () {
+    console.log ('Exiting Application');
+    process.exit(0);
 }
