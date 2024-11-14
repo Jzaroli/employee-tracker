@@ -1,6 +1,7 @@
 // Packages needed for this application:
 import inquirer from "inquirer";
 import Db from './db/index.js';
+import Table from "cli-table3";
 
 const db = new Db();
 
@@ -36,6 +37,10 @@ inquirer
             value: 'ADD_ROLE',
         },
         {
+            name: 'Add an Employee',
+            value: 'ADD_EMPLOYEE',
+        },
+        {
             name: 'Quit Application',
             value: 'QUIT_APPLICATION',
         }
@@ -46,20 +51,23 @@ inquirer
     const choice = response.choice;
 //Calls the appropriate function bacsed on the selected prompt in script
     switch (choice) {
-        case 'VIEW_EMPLOYEES':
-            findEmployees();
-            break;
         case 'VIEW_DEPARTMENTS':
             findDepartments();
-            break;
-        case 'VIEW_ROLES':
-            findRoles();
             break;
         case 'ADD_DEPARTMENT':
             addDepartment();
             break;
+        case 'VIEW_ROLES':
+            findRoles();
+            break;
         case 'ADD_ROLE':
-            AddRole();
+            addRole();
+            break;
+        case 'VIEW_EMPLOYEES':
+            findEmployees();
+            break;
+        case 'ADD_EMPLOYEE':
+            addEmployee();
             break;
         case 'QUIT_APPLICATION':
             quit();
@@ -73,26 +81,13 @@ inquirer
 function findDepartments() {
     db.viewAllDepartments()
     .then(({ rows }) => {
-        const departments = rows;
-        console.table(departments);
-    })
-    .then(() => script());
-}
-
-function findEmployees() {
-    db.viewAllEmployees()
-        .then(({ rows }) => {
-            const employees = rows;
-            console.table(employees);
-        })
-        .then(() => script());
-}
-
-function findRoles() {
-    db.viewAllRoles()
-        .then(({ rows }) => {
-            const roles = rows; 
-            console.table(roles);
+        const table = new Table({
+            head: ['Department ID', 'Department']
+        });
+        rows.forEach(row => {
+            table.push([row.dept_id, row.dept_name ]);
+        });
+        console.log(table.toString());
     })
     .then(() => script());
 }
@@ -108,6 +103,89 @@ function addDepartment(){
         db.addDept(response) })
             .then( () => {
                 console.log('Your new department was added to the system record!');
+            })      
+    .then(() => script());
+}
+
+function findRoles() {
+    db.viewAllRoles()
+        .then(({ rows }) => {
+            const table = new Table({
+                head: ['Role ID', 'Title', 'Salary', 'Department']
+            });
+            rows.forEach(row => {
+                table.push([row.role_id, row.title, row.salary, row.dept_name]);
+            });
+            console.log(table.toString());
+    })
+    .then(() => script());
+}
+
+function addRole(){
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "title",
+            message: "What is the title of the role?",
+        },
+        {
+            type: "input",
+            name: "salary",
+            message: "What is the salary of the role?",
+        },
+        {
+            type: "input",
+            name: "department",
+            message: "What is the department ID of the role? For a list of IDs, select view all departments:",
+        }
+    ]).then((response) => {
+        db.addRole(response) })
+            .then( () => {
+                console.log('Your new role was added to the system record!');
+            })      
+    .then(() => script());
+}
+
+function findEmployees() {
+    db.viewAllEmployees()
+        .then(({ rows }) => {
+            const table = new Table({
+                head: ['Employee ID', 'First Name', 'Last Name', 'Title', 'Salary', 'Manager', 'Department']
+            });
+            rows.forEach(row => {
+                table.push([row.employee_id, row.first_name, row.last_name, row.title, row.salary, row.manager, row.dept_name]);
+            });
+            console.log(table.toString());
+        })
+        .then(() => script());
+}
+
+function addEmployee(){
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "fName",
+            message: "What is the first name of the employee?",
+        },
+        {
+            type: "input",
+            name: "lName",
+            message: "What is the last name of the employee?",
+        },
+        {
+            type: "input",
+            name: "roleId",
+            message: "What is the role ID of the employee? For a list of IDs, select view all roles:",
+        },
+        {
+            type: "input",
+            name: "managerID",
+            message: "If applicable, what is the manager ID for this employee? For existing manager IDs, select view all employees:",
+        }
+    ]).then((response) => {
+        db.addEmp(response) })
+            .then( () => {
+                console.log('Your new employee was added to the system record!');
             })      
     .then(() => script());
 }
