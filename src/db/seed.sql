@@ -23,12 +23,12 @@ INSERT INTO roles (title, salary, dept_id) VALUES
 ('HR Representative', 90000, 7);
 
 -- Inserts seed data into employees table
-INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES
+INSERT INTO employees (first_name, last_name, role_id, manager) VALUES
 ('John', 'Smith', 1, NULL),
-('Jane', 'Dylan', 2, 1),
-('Lebron', 'James', 3, NULL),
-('Nancy', 'Jordan', 4, 2),
-('Elena', 'Wattles', 5, NULL),
-('Bobby', 'Thorogood', 6, 3),
+('Jane', 'Dylan', 2, NULL),
+('Lebron', 'James', 3, 'Jane Dylan'),
+('Nancy', 'Jordan', 4, NULL),
+('Elena', 'Wattles', 5, 'Bobby Thorogood'),
+('Bobby', 'Thorogood', 6, NULL),
 ('Maya', 'Ceprnic', 7, NULL);
 
