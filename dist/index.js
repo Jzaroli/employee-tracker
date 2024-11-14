@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -120,30 +129,40 @@ function findRoles() {
     })
         .then(() => script());
 }
+function returnDeptsId() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const departments = yield db.returnDept();
+        return departments.rows.map(row => row.dept_id);
+    });
+}
 function addRole() {
-    inquirer_1.default.prompt([
-        {
-            type: "input",
-            name: "title",
-            message: "What is the title of the role?",
-        },
-        {
-            type: "input",
-            name: "salary",
-            message: "What is the salary of the role?",
-        },
-        {
-            type: "input",
-            name: "department",
-            message: "What is the department ID of the role? For a list of IDs, select view all departments:",
-        }
-    ]).then((response) => {
-        db.addRole(response);
-    })
-        .then(() => {
-        console.log('Your new role was added to the system record!');
-    })
-        .then(() => script());
+    return __awaiter(this, void 0, void 0, function* () {
+        const departments = yield returnDeptsId();
+        inquirer_1.default.prompt([
+            {
+                type: "input",
+                name: "title",
+                message: "What is the title of the role?",
+            },
+            {
+                type: "input",
+                name: "salary",
+                message: "What is the salary of the role?",
+            },
+            {
+                type: "list",
+                name: "department",
+                message: "What is the department ID for this new role?",
+                choices: departments
+            }
+        ]).then((response) => {
+            db.addRole(response);
+        })
+            .then(() => {
+            console.log('Your new role was added to the system record!');
+        })
+            .then(() => script());
+    });
 }
 function findEmployees() {
     db.viewAllEmployees()
@@ -158,35 +177,54 @@ function findEmployees() {
     })
         .then(() => script());
 }
+function returnRolesId() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const roles = yield db.returnRole();
+        return roles.rows.map(role => role.role_id);
+    });
+}
+function returnManagers() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const managers = yield db.returnManager();
+        return managers.rows.map(manager => manager.manager);
+    });
+}
 function addEmployee() {
-    inquirer_1.default.prompt([
-        {
-            type: "input",
-            name: "fName",
-            message: "What is the first name of the employee?",
-        },
-        {
-            type: "input",
-            name: "lName",
-            message: "What is the last name of the employee?",
-        },
-        {
-            type: "input",
-            name: "roleId",
-            message: "What is the role ID of the employee? For a list of IDs, select view all roles:",
-        },
-        {
-            type: "input",
-            name: "managerID",
-            message: "If applicable, what is the manager ID for this employee? For existing manager IDs, select view all employees:",
-        }
-    ]).then((response) => {
-        db.addEmp(response);
-    })
-        .then(() => {
-        console.log('Your new employee was added to the system record!');
-    })
-        .then(() => script());
+    return __awaiter(this, void 0, void 0, function* () {
+        const roles = yield returnRolesId();
+        const managers = yield returnManagers();
+        const none = 'None';
+        inquirer_1.default.prompt([
+            {
+                type: "input",
+                name: "fName",
+                message: "What is the first name of the employee?",
+            },
+            {
+                type: "input",
+                name: "lName",
+                message: "What is the last name of the employee?",
+            },
+            {
+                type: "list",
+                name: "role",
+                message: "What is the role ID for this new employee?",
+                choices: roles
+            },
+            {
+                type: "list",
+                name: "manager",
+                message: "If applicable, who is the manager for this new employee?",
+                choices: [...managers, none]
+            }
+        ]).then((response) => {
+            db.addEmp(response);
+        })
+            .then(() => {
+            console.log('Your new employee was added to the system record!');
+        })
+            .then(() => script());
+    });
 }
 function quit() {
     console.log('Exiting Application');

@@ -25,7 +25,7 @@ inquirer
             value: 'VIEW_ROLES',
         },
         {
-            name: 'View all Employess',
+            name: 'View all Employees',
             value: 'VIEW_EMPLOYEES',
         },
         {
@@ -43,6 +43,10 @@ inquirer
         {
             name: 'Quit Application',
             value: 'QUIT_APPLICATION',
+        },
+        {
+            name: 'Update an Employee',
+            value: 'UPDATE_EMPLOYEE'
         }
       ]
     },
@@ -68,6 +72,9 @@ inquirer
             break;
         case 'ADD_EMPLOYEE':
             addEmployee();
+            break;
+        case 'UDPATE_EMPLOYEE':
+            updateEmployee();
             break;
         case 'QUIT_APPLICATION':
             quit();
@@ -121,7 +128,13 @@ function findRoles() {
     .then(() => script());
 }
 
-function addRole(){
+async function returnDeptsId() {
+    const departments = await db.returnDept()
+    return departments.rows.map(row => row.dept_id);
+}
+
+async function addRole() {
+    const departments = await returnDeptsId();
     inquirer.prompt([
         {
             type: "input",
@@ -134,9 +147,10 @@ function addRole(){
             message: "What is the salary of the role?",
         },
         {
-            type: "input",
+            type: "list",
             name: "department",
-            message: "What is the department ID of the role? For a list of IDs, select view all departments:",
+            message: "What is the department ID for this new role?",
+            choices: departments
         }
     ]).then((response) => {
         db.addRole(response) })
@@ -160,7 +174,20 @@ function findEmployees() {
         .then(() => script());
 }
 
-function addEmployee(){
+async function returnRolesId() {
+    const roles = await db.returnRole()
+    return roles.rows.map(role => role.role_id);
+}
+
+async function returnManagers() {
+    const managers = await db.returnManager()
+    return managers.rows.map(manager => manager.manager)
+}
+
+async function addEmployee(){
+    const roles = await returnRolesId();
+    const managers = await returnManagers();
+    const none = 'None';
     inquirer.prompt([
         {
             type: "input",
@@ -173,14 +200,16 @@ function addEmployee(){
             message: "What is the last name of the employee?",
         },
         {
-            type: "input",
-            name: "roleId",
-            message: "What is the role ID of the employee? For a list of IDs, select view all roles:",
+            type: "list",
+            name: "role",
+            message: "What is the role ID for this new employee?",
+            choices: roles
         },
         {
-            type: "input",
-            name: "managerID",
-            message: "If applicable, what is the manager ID for this employee? For existing manager IDs, select view all employees:",
+            type: "list",
+            name: "manager",
+            message: "If applicable, who is the manager for this new employee?",
+            choices: [...managers, none]
         }
     ]).then((response) => {
         db.addEmp(response) })
@@ -188,6 +217,10 @@ function addEmployee(){
                 console.log('Your new employee was added to the system record!');
             })      
     .then(() => script());
+}
+
+async function updateEmployee() {
+    
 }
 
 function quit () {

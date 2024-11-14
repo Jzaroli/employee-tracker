@@ -29,6 +29,11 @@ class Db {
             return this.query('SELECT * FROM departments;');
         });
     }
+    returnDept() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.query('SELECT dept_id FROM roles;');
+        });
+    }
     viewAllEmployees() {
         return __awaiter(this, void 0, void 0, function* () {
             return this.query('SELECT employees.employee_id, employees.first_name, employees.last_name, roles.title, roles.salary, employees.manager, departments.dept_name FROM employees JOIN roles ON employees.role_id = roles.role_id JOIN departments ON roles.dept_id = departments.dept_id;');
@@ -52,7 +57,17 @@ class Db {
     }
     addEmp(employee) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.query('INSERT INTO employees (first_name, last_name, role_id, manager) VALUES ($1, $2, $3, $4)', [employee.fName, employee.lName, employee.roleId, employee.managerID || null]);
+            return this.query('INSERT INTO employees (first_name, last_name, role_id, manager) VALUES ($1, $2, $3, $4)', [employee.fName, employee.lName, employee.role, employee.manager || null]);
+        });
+    }
+    returnManager() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.query('SELECT manager FROM employees WHERE manager IS NOT NULL');
+        });
+    }
+    returnRole() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.query('SELECT role_id FROM employees');
         });
     }
 }
