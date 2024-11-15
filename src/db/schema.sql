@@ -1,6 +1,8 @@
+-- Creates db
 DROP DATABASE IF EXISTS employees_db;
 CREATE DATABASE employees_db;
 
+-- Connects to db
 \c employees_db;
 
 -- Creates departments table

@@ -3,11 +3,13 @@ import inquirer from "inquirer";
 import Db from './db/index.js';
 import Table from "cli-table3";
 
+// Creates Db instance:
 const db = new Db();
 
+// Runs main script when booting up the app:
 script();
 
-// Function for all of the prompts that get call in the app:
+// Function with the prompts that make up the app:
 function script() {
 inquirer
   .prompt([
@@ -41,19 +43,19 @@ inquirer
             value: 'ADD_EMPLOYEE',
         },
         {
-            name: 'Quit Application',
-            value: 'QUIT_APPLICATION',
-        },
-        {
             name: 'Update an Employee',
             value: 'UPDATE_EMPLOYEE'
+        },
+        {
+            name: 'Quit Application',
+            value: 'QUIT_APPLICATION',
         }
       ]
     },
 ])
 .then((response) => {
     const choice = response.choice;
-//Calls the appropriate function bacsed on the selected prompt in script
+//Calls the appropriate function based on the selected prompt in the script:
     switch (choice) {
         case 'VIEW_DEPARTMENTS':
             findDepartments();
@@ -73,7 +75,7 @@ inquirer
         case 'ADD_EMPLOYEE':
             addEmployee();
             break;
-        case 'UDPATE_EMPLOYEE':
+        case 'UPDATE_EMPLOYEE':
             updateEmployee();
             break;
         case 'QUIT_APPLICATION':
@@ -85,6 +87,7 @@ inquirer
   });
 }
 
+// Function that connects script() to the queries in db/index.js for viewing departments
 function findDepartments() {
     db.viewAllDepartments()
     .then(({ rows }) => {
@@ -99,6 +102,7 @@ function findDepartments() {
     .then(() => script());
 }
 
+// Function that connects script() to the queries in db/index.js for adding departments
 function addDepartment(){
     inquirer.prompt([
         {
@@ -114,6 +118,7 @@ function addDepartment(){
     .then(() => script());
 }
 
+// Function that connects script() to the queries in db/index.js for viewing roles:
 function findRoles() {
     db.viewAllRoles()
         .then(({ rows }) => {
@@ -128,11 +133,13 @@ function findRoles() {
     .then(() => script());
 }
 
+// Async function that returns departments to populate in addRole():
 async function returnDeptsId() {
     const departments = await db.returnDept()
     return departments.rows.map(row => row.dept_id);
 }
 
+// Function that connects script() to the queries in db/index.js for adding roles:
 async function addRole() {
     const departments = await returnDeptsId();
     inquirer.prompt([
@@ -174,20 +181,22 @@ function findEmployees() {
         .then(() => script());
 }
 
+// Async function that returns roles to populate in addEmployee():
 async function returnRolesId() {
     const roles = await db.returnRole()
     return roles.rows.map(role => role.role_id);
 }
 
+// Async function that returns managers to populate in addEmployee():
 async function returnManagers() {
     const managers = await db.returnManager()
     return managers.rows.map(manager => manager.manager)
 }
 
+// Function that connects script() to the queries in db/index.js for adding employees:
 async function addEmployee(){
     const roles = await returnRolesId();
     const managers = await returnManagers();
-    const none = 'None';
     inquirer.prompt([
         {
             type: "input",
@@ -209,7 +218,7 @@ async function addEmployee(){
             type: "list",
             name: "manager",
             message: "If applicable, who is the manager for this new employee?",
-            choices: [...managers, none]
+            choices: [...managers, 'None']
         }
     ]).then((response) => {
         db.addEmp(response) })
@@ -219,10 +228,82 @@ async function addEmployee(){
     .then(() => script());
 }
 
-async function updateEmployee() {
-    
+// Async function that returns the employees and their IDs as a string for updateEmployee():
+async function returnExistingEmpsName() {
+    const employees = await db.returnExistEmps()
+    return employees.rows.map(employee => `${employee.employee_id} ${employee.first_name} ${employee.last_name}`);
 }
 
+// Function that connects script() to the queries in db/index.js for updating employees:
+async function updateEmployee() {
+    // Stores employee information for initial employee selection:
+    const employees = await returnExistingEmpsName();
+    // Select the employee you want to update:
+    inquirer.prompt([
+        {
+            type: "list",
+            name: "employee",
+            message: "Which employee would you like to update?",
+            choices: employees
+        }
+    ]).then((employee) => {
+        // Passes the id down the line so the function knows which record to update in the db:
+        const employeeSplit = employee.employee.split('');
+        const id = employeeSplit[0];
+        return id;
+            })  
+    .then((id) => secondPrompt(id));
+
+    // This function gathers the details for the updated employee record:
+    async function secondPrompt(id: any) {  
+        const roles = await returnRolesId();
+        const managers = await returnManagers();
+        inquirer.prompt([
+        {
+            type: "input",
+            name: "newFirstName",
+            message: "What is this employee's first name?",
+        },
+        {
+            type: "input",
+            name: "newLastName",
+            message: "What is this employee's last name?",
+        },
+        {
+            type: "list",
+            name: "newRole",
+            message: "What is this employee's role ID?",
+            choices: roles
+        },
+        {
+            type: "list",
+            name: "newManager",
+            message: "If applicable, who is the manager for this new employee?",
+            choices: [...managers, 'None']
+        }
+    ]).then((response) => {
+        // The ID needed the be converted to a number type:
+        const newId = Number(id);
+        // Creates an empty ID object and pushes the ID number to it:
+        const empId = {} as { empId: number };
+        empId.empId = newId;
+        // Creates a final object to be passed to the SQL query combining the initial employee ID with the udpated employee information:
+        const finalObj = {} as {finalId: number, finalFName: string, finalLName: string, finalRole: number, finalManager: string }
+        finalObj.finalId = empId.empId;
+        finalObj.finalFName = response.newFirstName;
+        finalObj.finalLName = response.newLastName;
+        finalObj.finalRole = response.newRole;
+        finalObj.finalManager = response.newManager;
+        // Sends the object to the query for the update:
+        db.updateEmp(finalObj) })
+            .then( () => {
+                console.log('Your employee was updated in the system record!');
+            })  
+    .then(() => script());
+    }
+}
+
+// Function for quitting app in switch of script():
 function quit () {
     console.log ('Exiting Application');
     process.exit(0);
