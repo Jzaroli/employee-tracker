@@ -13,10 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.connectToDb = exports.pool = void 0;
+// Packages needed for connecting to db:
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const pg_1 = __importDefault(require("pg"));
 const { Pool } = pg_1.default;
+// Set ups parameters for connection:
 const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -25,6 +27,7 @@ const pool = new Pool({
     port: 5432,
 });
 exports.pool = pool;
+// Sets up connection to db:
 const connectToDb = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield pool.connect();

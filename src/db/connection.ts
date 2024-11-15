@@ -1,9 +1,11 @@
+// Packages needed for connecting to db:
 import dotenv from 'dotenv';
 dotenv.config();
-
 import pg from 'pg';
+
 const { Pool } = pg;
 
+// Set ups parameters for connection:
 const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -12,6 +14,7 @@ const pool = new Pool({
     port: 5432,
   });
 
+// Sets up connection to db:
   const connectToDb = async () => {
     try {
       await pool.connect();
@@ -21,5 +24,6 @@ const pool = new Pool({
       process.exit(1);
     }
   };
-  
+
+// Exports for connecting in ./index.js
   export { pool, connectToDb };

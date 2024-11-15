@@ -1,18 +1,27 @@
-# employee-tracker  
+# Employee Tracker App
 
 ## Description
+This app helps you track the employees, their roles, their managers and the departments at your company. You can add new departments, roles and employees. And, you can also update an employee record. More features will be pushed like updating additional records and deleting them.
 
 ## Usage
- Please have a look at the demo video for a walkthrough: 
-[Demo Video]()
+This app is accessed through the command line using the 'npm run build' and 'npm run start' commands. 
 
-Here is a screenshot.
+Please have a look at the demo video for a walkthrough: 
+[Demo Video](https://drive.google.com/file/d/15JP-_EeoE1u1i_LH4n1hetNsgiJW7F-A/view?usp=drive_link)
+
 Screenshot 1:  
-![screenshot1]()  
+![screenshot1](./images/screenshot1.jpg)  
+
+Screenshot 2:  
+![screenshot1](./images/screenshot2.jpg)  
 
 ## Technical Features
+
+Typescript and Node.js are part of the stack, as well as PostgreSQL. The app uses the npm packages inquirer, pg for postgreSQL, and cli-table3 for an improved table visualization.
+
 ## Credits & How to Contribute
-This was created by Johann Zaroli. Please contact me on GitHub at Jzaroli with any questions or requests.
+This app was created by Johann Zaroli. Please contact me on GitHub at Jzaroli with any questions or requests.
+
 ## License
 MIT License
 
